@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cxxabi.h>
 #include <sched.h>
 #include <cstdint>
 #include <ctime>
@@ -76,5 +77,11 @@ public:
 
     static double Atof(const char *str);
 };
+
+template <typename T>
+const char *TypeToName() {
+    static const char *s_name = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, nullptr);
+    return s_name;
+}
 
 }  // namespace sylar

@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+
 #include "mutex.h"
 #include "singleton.h"
 
@@ -37,6 +38,8 @@ public:
     std::string getEnv(const std::string &key, const std::string &defalut_value = "");
 
     std::string getAbsolutePath(const std::string &path) const;
+
+    std::string getAbsoluteWorkPath(const std::string &path) const;
 
     std::string getConfigPath();
 

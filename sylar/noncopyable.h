@@ -4,10 +4,10 @@ namespace sylar {
 
 class Noncopyable {
 public:
-    Noncopyable()                               = default;
-    ~Noncopyable()                              = default;
-    Noncopyable(const Noncopyable &)            = delete;
+    Noncopyable() = default;
+    ~Noncopyable() = default;
+    Noncopyable(const Noncopyable &) = delete;
     Noncopyable &operator=(const Noncopyable &) = delete;
 };
 
-} // namespace sylar
+}  // namespace sylar
