@@ -2,4 +2,5 @@
 build
 .cache
 bin/test*
+bin/*.txt
 lib

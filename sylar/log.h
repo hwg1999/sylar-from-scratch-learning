@@ -146,6 +146,8 @@ public:
 
     std::ostream &format(std::ostream &os, LogEvent::ptr event);
 
+    std::string getPattern() const { return m_pattern; }
+
 public:
     class FormatItem {
     public:
@@ -177,6 +179,8 @@ public:
 
     virtual void log(LogEvent::ptr event) = 0;
 
+    virtual std::string toYamlString() = 0;
+
 protected:
     MutexType m_mutex;
     LogFormatter::ptr m_formatter;
@@ -190,6 +194,8 @@ public:
     StdoutLogAppender();
 
     void log(LogEvent::ptr event) override;
+
+    std::string toYamlString() override;
 };
 
 class FileLogAppender : public LogAppender {
@@ -201,6 +207,8 @@ public:
     void log(LogEvent::ptr event) override;
 
     bool reopen();
+
+    std::string toYamlString() override;
 
 private:
     std::string m_filename;
@@ -230,6 +238,8 @@ public:
     void clearAppenders();
 
     void log(LogEvent::ptr event);
+
+    std::string toYamlString();
 
 private:
     MutexType m_mutex;
@@ -263,6 +273,8 @@ public:
     Logger::ptr getLogger(const std::string &name);
 
     Logger::ptr getRoot() { return m_root; }
+
+    std::string toYamlString();
 
 private:
     MutexType m_mutex;
