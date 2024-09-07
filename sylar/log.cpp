@@ -373,7 +373,7 @@ FileLogAppender::FileLogAppender(const std::string &file) : LogAppender{std::mak
     m_filename = file;
     reopen();
     if (m_reopenError) {
-        std::cout << "reopen file " << m_filename << " error" << std::endl;
+        printf("reopen file %s error\n", m_filename.c_str());
     }
 }
 
@@ -382,7 +382,7 @@ void FileLogAppender::log(LogEvent::ptr event) {
     if (now >= (m_lastTime + 3)) {
         reopen();
         if (m_reopenError) {
-            std::cout << "reopen file " << m_filename << " error" << std::endl;
+            printf("reopen file %s error\n", m_filename.c_str());
         }
         m_lastTime = now;
     }

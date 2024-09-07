@@ -2,6 +2,7 @@
 #include <atomic>
 #include "config.h"
 #include "macro.h"
+#include "scheduler.h"
 
 namespace sylar {
 
@@ -59,7 +60,8 @@ Fiber::ptr Fiber::GetThis() {
     return t_fiber->shared_from_this();
 }
 
-Fiber::Fiber(std::function<void()> cb, size_t stacksize) : m_id{s_fiber_id++}, m_cb{cb} {
+Fiber::Fiber(std::function<void()> cb, size_t stacksize, bool run_in_scheduler)
+    : m_id{s_fiber_id++}, m_cb{cb}, m_runInScheduler{run_in_scheduler} {
     ++s_fiber_count;
     m_stacksize = stacksize ? stacksize : g_fiber_stack_size->getValue();
     m_stack = StackAllocator::Alloc(m_stacksize);
@@ -115,7 +117,11 @@ void Fiber::resume() {
     SetThis(this);
     m_state = RUNNING;
 
-    if (swapcontext(&(t_thread_fiber->m_ctx), &m_ctx)) {
+    if (m_runInScheduler) {
+        if (swapcontext(&(Scheduler::GetMainFiber()->m_ctx), &m_ctx)) {
+            SYLAR_ASSERT2(false, "swapcontext");
+        }
+    } else if (swapcontext(&(t_thread_fiber->m_ctx), &m_ctx)) {
         SYLAR_ASSERT2(false, "swapcontext");
     }
 }
@@ -127,7 +133,11 @@ void Fiber::yield() {
         m_state = READY;
     }
 
-    if (swapcontext(&m_ctx, &(t_thread_fiber->m_ctx))) {
+    if (m_runInScheduler) {
+        if (swapcontext(&m_ctx, &(Scheduler::GetMainFiber()->m_ctx))) {
+            SYLAR_ASSERT2(false, "swapcontext");
+        }
+    } else if (swapcontext(&m_ctx, &(t_thread_fiber->m_ctx))) {
         SYLAR_ASSERT2(false, "swapcontext");
     }
 }

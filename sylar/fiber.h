@@ -16,7 +16,7 @@ private:
     Fiber();
 
 public:
-    Fiber(std::function<void()> cb, size_t stacksize = 0);
+    Fiber(std::function<void()> cb, size_t stacksize = 0, bool run_in_scheduler = true);
 
     ~Fiber();
 
@@ -48,6 +48,7 @@ private:
     ucontext_t m_ctx;
     void *m_stack = nullptr;
     std::function<void()> m_cb;
+    bool m_runInScheduler;
 };
 
 }  // namespace sylar

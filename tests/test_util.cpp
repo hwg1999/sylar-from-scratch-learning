@@ -3,7 +3,7 @@
 
 sylar::Logger::ptr g_logger = SYLAR_LOG_ROOT();
 
-void test2() { std::cout << sylar::BacktraceToString() << std::endl; }
+void test2() { printf("%s\n", sylar::BacktraceToString().c_str()); }
 
 void test1() { test2(); }
 

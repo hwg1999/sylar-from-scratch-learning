@@ -10,7 +10,7 @@ void run_in_fiber2() {
 void run_in_fiber() {
     SYLAR_LOG_INFO(g_logger) << "run_in_fiber begin";
 
-    sylar::Fiber::ptr fiber{new sylar::Fiber{run_in_fiber2}};
+    sylar::Fiber::ptr fiber{new sylar::Fiber{run_in_fiber2, 0, false}};
     fiber->resume();
 
     SYLAR_LOG_INFO(g_logger) << "run_in_fiber end";
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
     sylar::Fiber::GetThis();
 
-    sylar::Fiber::ptr fiber{new sylar::Fiber{run_in_fiber}};
+    sylar::Fiber::ptr fiber{new sylar::Fiber{run_in_fiber, 0, false}};
     fiber->resume();
 
     SYLAR_LOG_INFO(g_logger) << "main end";
