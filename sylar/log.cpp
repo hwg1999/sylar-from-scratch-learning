@@ -372,15 +372,24 @@ std::string StdoutLogAppender::toYamlString() {
 FileLogAppender::FileLogAppender(const std::string &file) : LogAppender{std::make_shared<LogFormatter>()} {
     m_filename = file;
     reopen();
+    if (m_reopenError) {
+        std::cout << "reopen file " << m_filename << " error" << std::endl;
+    }
 }
 
 void FileLogAppender::log(LogEvent::ptr event) {
     uint64_t now = event->getTime();
     if (now >= (m_lastTime + 3)) {
         reopen();
+        if (m_reopenError) {
+            std::cout << "reopen file " << m_filename << " error" << std::endl;
+        }
         m_lastTime = now;
     }
 
+    if (m_reopenError) {
+        return;
+    }
     MutexType::Lock lock{m_mutex};
     if (m_formatter) {
         if (!m_formatter->format(m_filestream, event)) {
@@ -397,7 +406,8 @@ bool FileLogAppender::reopen() {
         m_filestream.close();
     }
     m_filestream.open(m_filename, std::ios::app);
-    return !m_filestream;
+    m_reopenError = !m_filestream;
+    return !m_reopenError;
 }
 
 std::string FileLogAppender::toYamlString() {
