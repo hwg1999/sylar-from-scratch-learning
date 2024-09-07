@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <csignal>  // for kill()
 #include <cstring>
+#include "fiber.h"
 #include "log.h"
 
 namespace sylar {
@@ -18,7 +19,7 @@ static sylar::Logger::ptr g_logger = SYLAR_LOG_NAME("system");
 
 pid_t GetThreadId() { return syscall(SYS_gettid); }
 
-uint64_t GetFiberId() { return 0; }
+uint64_t GetFiberId() { return Fiber::GetFiberId(); }
 
 uint64_t GetElapsed() {
     struct timespec ts = {0};
