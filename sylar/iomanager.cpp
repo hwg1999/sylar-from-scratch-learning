@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <cstring>
+#include <limits>
 #include "macro.h"
 
 namespace sylar {
@@ -307,7 +308,15 @@ void IOManager::tickle() {
     SYLAR_ASSERT(ret == 1);
 }
 
-bool IOManager::stopping() { return m_pendingEventCount == 0 && Scheduler::stopping(); }
+bool IOManager::stopping() {
+    uint64_t timeout = 0;
+    return stopping(timeout);
+}
+
+bool IOManager::stopping(uint64_t &timeout) {
+    timeout = getNextTimer();
+    return timeout == std::numeric_limits<uint64_t>::max() && m_pendingEventCount == 0 && Scheduler::stopping();
+}
 
 void IOManager::idle() {
     SYLAR_LOG_DEBUG(g_logger) << "idle";
@@ -317,20 +326,36 @@ void IOManager::idle() {
     std::shared_ptr<epoll_event> shared_events(events, [](epoll_event *ptr) { delete[] ptr; });
 
     while (true) {
-        if (stopping()) {
+        uint64_t nextTimeout = 0;
+        if (SYLAR_UNLIKELY(stopping(nextTimeout))) {
             SYLAR_LOG_DEBUG(g_logger) << "name=" << getName() << "idle stopping exit";
             break;
         }
 
-        static constexpr int MAX_TIMEOUT = 5000;
-        int ret = ::epoll_wait(m_epfd, events, MAX_EVENTS, MAX_TIMEOUT);
-        if (ret < 0) {
-            if (errno == EINTR) {
-                continue;
+        int ret = 0;
+        do {
+            static constexpr int MAX_TIMEOUT = 5000;
+            if (nextTimeout != std::numeric_limits<uint64_t>::max()) {
+                nextTimeout = std::min(static_cast<int>(nextTimeout), MAX_TIMEOUT);
+            } else {
+                nextTimeout = MAX_TIMEOUT;
             }
-            SYLAR_LOG_ERROR(g_logger) << "epoll_wait(" << m_epfd << ") (rt=" << ret << ") (errno=" << errno
-                                      << ") (errstr:" << strerror(errno) << ")";
-            break;
+
+            ret = ::epoll_wait(m_epfd, events, MAX_EVENTS, MAX_TIMEOUT);
+            if (ret < 0 && errno == EINTR) {
+                continue;
+            } else {
+                break;
+            }
+        } while (true);
+
+        std::vector<std::function<void()>> cbs;
+        listExpiredCb(cbs);
+        if (!cbs.empty()) {
+            for (const auto &cb : cbs) {
+                schedule(cb);
+            }
+            cbs.clear();
         }
 
         for (int i = 0; i < ret; ++i) {
@@ -391,5 +416,7 @@ void IOManager::idle() {
         rawPtr->yield();
     }
 }
+
+void IOManager::onTimerInsertedAtFront() { tickle(); }
 
 }  // namespace sylar

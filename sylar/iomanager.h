@@ -2,10 +2,11 @@
 
 #include "log.h"
 #include "scheduler.h"
+#include "timer.h"
 
 namespace sylar {
 
-class IOManager : public Scheduler {
+class IOManager : public Scheduler, public TimerManager {
 public:
     using ptr = std::shared_ptr<IOManager>;
     using RWMutexType = RWMutex;
@@ -59,6 +60,10 @@ protected:
     bool stopping() override;
 
     void idle() override;
+
+    bool stopping(uint64_t &timeout);
+
+    void onTimerInsertedAtFront() override;
 
     void contextResize(size_t size);
 

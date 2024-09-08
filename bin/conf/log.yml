@@ -9,4 +9,4 @@ logs:
       appenders:
           - type: StdoutLogAppender
           - type: FileLogAppender
-            file: /workspaces/c++/sylar-learning/bin
+            file: /workspaces/c++/sylar-learning/bin/log.txt

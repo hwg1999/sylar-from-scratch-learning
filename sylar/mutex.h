@@ -101,7 +101,7 @@ public:
     void unlock() {
         if (m_locked) {
             m_mutex.unlock();
-            m_locked = true;
+            m_locked = false;
         }
     }
 
