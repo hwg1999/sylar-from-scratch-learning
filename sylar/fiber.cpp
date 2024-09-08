@@ -118,7 +118,7 @@ void Fiber::resume() {
     m_state = RUNNING;
 
     if (m_runInScheduler) {
-        if (swapcontext(&(Scheduler::GetMainFiber()->m_ctx), &m_ctx)) {
+        if (swapcontext(&(Scheduler::GetSchedulerFiber()->m_ctx), &m_ctx)) {
             SYLAR_ASSERT2(false, "swapcontext");
         }
     } else if (swapcontext(&(t_thread_fiber->m_ctx), &m_ctx)) {
@@ -134,7 +134,7 @@ void Fiber::yield() {
     }
 
     if (m_runInScheduler) {
-        if (swapcontext(&m_ctx, &(Scheduler::GetMainFiber()->m_ctx))) {
+        if (swapcontext(&m_ctx, &(Scheduler::GetSchedulerFiber()->m_ctx))) {
             SYLAR_ASSERT2(false, "swapcontext");
         }
     } else if (swapcontext(&m_ctx, &(t_thread_fiber->m_ctx))) {

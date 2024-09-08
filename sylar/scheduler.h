@@ -21,7 +21,7 @@ public:
 
     static Scheduler *GetThis();
 
-    static Fiber *GetMainFiber();
+    static Fiber *GetSchedulerFiber();
 
     template <typename FiberOrCb>
     void schedule(FiberOrCb fc, int threadId = -1) {
@@ -51,6 +51,8 @@ protected:
     virtual bool stopping();
 
     void setThis();
+
+    bool hasIdleThreads() { return m_idleThreadCount > 0; }
 
 private:
     template <typename FiberOrCb>
@@ -96,7 +98,7 @@ private:
 
     bool m_useCaller;
     Fiber::ptr m_rootFiber;
-    int m_rootThread{0};
+    int m_rootThreadId{0};
 
     bool m_stopping{false};
 };

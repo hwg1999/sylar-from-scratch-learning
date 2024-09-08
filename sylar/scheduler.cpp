@@ -23,10 +23,10 @@ Scheduler::Scheduler(size_t threads, bool use_caller, const std::string &name) :
 
         sylar::Thread::SetName(m_name);
         t_scheduler_fiber = m_rootFiber.get();
-        m_rootThread = sylar::GetThreadId();
-        m_threadIds.push_back(m_rootThread);
+        m_rootThreadId = sylar::GetThreadId();
+        m_threadIds.push_back(m_rootThreadId);
     } else {
-        m_rootThread = -1;
+        m_rootThreadId = -1;
     }
 
     m_threadCount = threads;
@@ -34,7 +34,7 @@ Scheduler::Scheduler(size_t threads, bool use_caller, const std::string &name) :
 
 Scheduler *Scheduler::GetThis() { return t_scheduler; }
 
-Fiber *Scheduler::GetMainFiber() { return t_scheduler_fiber; }
+Fiber *Scheduler::GetSchedulerFiber() { return t_scheduler_fiber; }
 
 void Scheduler::setThis() { t_scheduler = this; }
 
@@ -116,7 +116,7 @@ void Scheduler::stop() {
 void Scheduler::run() {
     SYLAR_LOG_DEBUG(g_logger) << "run";
     setThis();
-    if (sylar::GetThreadId() != m_rootThread) {
+    if (sylar::GetThreadId() != m_rootThreadId) {
         t_scheduler_fiber = sylar::Fiber::GetThis().get();
     }
 
