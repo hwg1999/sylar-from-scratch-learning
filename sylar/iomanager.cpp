@@ -341,7 +341,7 @@ void IOManager::idle() {
                 nextTimeout = MAX_TIMEOUT;
             }
 
-            ret = ::epoll_wait(m_epfd, events, MAX_EVENTS, MAX_TIMEOUT);
+            ret = ::epoll_wait(m_epfd, events, MAX_EVENTS, nextTimeout);
             if (ret < 0 && errno == EINTR) {
                 continue;
             } else {

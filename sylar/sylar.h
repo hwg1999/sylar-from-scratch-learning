@@ -2,7 +2,9 @@
 
 #include "config.h"
 #include "env.h"
+#include "fd_manager.h"
 #include "fiber.h"
+#include "hook.h"
 #include "iomanager.h"
 #include "log.h"
 #include "macro.h"

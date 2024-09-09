@@ -115,6 +115,7 @@ void Scheduler::stop() {
 
 void Scheduler::run() {
     SYLAR_LOG_DEBUG(g_logger) << "run";
+    set_hook_enable(true);
     setThis();
     if (sylar::GetThreadId() != m_rootThreadId) {
         t_scheduler_fiber = sylar::Fiber::GetThis().get();
